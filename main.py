@@ -6,7 +6,7 @@ cur = con.cursor()
 
 # INSERT
 
-def INSERT():
+def INSERT_NEW():
     Name = input('Please enter name: ')
     PhoneNumber = input('Please enter phone number: ')
     Age = input('Please enter age: ')
@@ -15,14 +15,33 @@ def INSERT():
     cur.execute('INSERT INTO ' + Where + ' VALUES(?, ?, ?, ?);', (Nationality, Name, Age, PhoneNumber))
     con.commit()
 
+# INSERT FROM OTHER TABLE
+    
+def INSERT_FROM_OTHER():
+    Name = input('Please enter name of table to be inserted: ')
+    where = input('Please enter where to SELECT: ')
+    From = input('Please enter where to insert: ')
+    Condition = input('Please enter the condition: ')
+    cur.execute('INSERT INTO ' + Name + ' SELECT ' + where + ' FROM ' + From + ' WHERE ' + Condition + ';' )
+    con.commit()
+    
 # SELECT 
 
 def SELECT():
-    where = input('Please enter where to sELECT: ')
+    where = input('Please enter where to SELECT: ')
     range = input('Please enter columns to sELECT\nex) Name, Age, PhoneNumber, Nationality  or * for everything: ')
     cur.execute('SELECT ' + range + ' FROM '+ where +';')
     for row in cur:
         print(row)
+        
+# SELECT DISTINCT
+
+def SELECT_DISTINCT_byPhoneNumber():
+    where = input('Please enter where to SELECT. PhoneNumber is default and other fields are your choice: ')
+    table = input('Please enter which table to remove duplicated PhoneNumber: ')
+    cur.execute('SELECT DISTINCT PhoneNumber, ' + where + ' FROM '+ table +';')
+    for row in cur:
+        print(row)    
 
 # 이름으로 DELETE
 
@@ -43,9 +62,9 @@ def DELETE_By_NUMBER():
 # 국적으로 DELETE
 
 def DELETE_By_NATIONALITY():
-    number = input('Please enter which nationality you want to delete: ')
+    nationality = input('Please enter which nationality you want to delete: ')
     where = input('Please enter which table to delete: ')
-    cur.execute('DELETE FROM '+ where +' WHERE PhoneNumber = \'' + number +'\';')
+    cur.execute('DELETE FROM '+ where +' WHERE Nationality = \'' + nationality +'\';')
     con.commit()
 
 # 나이로 DELETE
@@ -53,7 +72,7 @@ def DELETE_By_NATIONALITY():
 def DELETE_By_AGE():
     age = input('Please enter which age you want to delete: ')
     where = input('Please enter which table to delete: ')
-    cur.execute('DELETE FROM '+ where +' WHERE PhoneNumber = \'' + number +'\';')
+    cur.execute('DELETE FROM '+ where +' WHERE PhoneNumber = \'' + age +'\';')
     con.commit()
     
 # table을 clear
@@ -61,6 +80,7 @@ def DELETE_By_AGE():
 def DELETE_ALLINFO():
     where = input('Please enter which table to clear: ')
     cur.execute('DELETE FROM ' + where)
+    con.commit()
     
 # INNER JOIN
     
@@ -110,14 +130,31 @@ def FULL_OUTER_JOIN():
 
 def MAKE_NEW_TABLE():
     Name = input('Please enter table name: ')
-    cur.execute('CREATE TABLE IF NOT EXISTS ' + Name +'(Nationality TEXT, Name TEXT, Age INT, PhoneNumber TEXT);')
+    cur.execute('CREATE TABLE IF NOT EXISTS ' + Name +'(Nationality TEXT, Name TEXT, Age TEXT, PhoneNumber TEXT);')
+    con.commit()
     
 def DROP_TABLE():
     Name = input('Please enter table name to drop: ')
     cur.execute('DROP TABLE ' + Name +';')
+    con.commit()
         
 def CHECK_TABLE():
     cur.execute('SELECT * FROM sqlite_master;')
+    for row in cur:
+        print(row)
+        
+def CREATE_INDEX():
+    Name = input('Please enter the name of index: ')
+    Where = input('Please enter where to make index: ')
+    Attribute = input('Please enter which attribute to be INDEX')
+    cur.execute('CREATE INDEX ' + Name + ' on ' + Where + '(' + Attribute + ')')
+    con.commit()
+    
+def SELECT_byINDEX():
+    Where = input('Please enter where to see by INDEX: ')
+    Attribute = input('Please enter which attribute you used to make INDEX: ')
+    Value = input('Please enter which value you want to check: ')
+    cur.execute('SELECT * FROM ' + Where + ' WHERE ' + Attribute + ' = \'' + Value + '\';')
     for row in cur:
         print(row)
         
@@ -127,6 +164,7 @@ def MAKE_VIEW():
     table = input('Please enter table name to show. include what you wrote at tablename in advance: ')
     condition = input('Please enter condition: ')
     cur.execute('CREATE VIEW ' + Name + ' AS SELECT ' + res + ' FROM ' + table + ' WHERE ' + condition + ';')
+    con.commit()
 
 def SHOW_VIEW():
     Name = input('Please enter name of View: ')
@@ -137,13 +175,23 @@ def SHOW_VIEW():
 res = input('Please enter your response: ')
 
 if res == 'insert':
-    INSERT()
-elif res == 'sELECT':
+    INSERT_NEW()
+elif res == 'insertT':
+    INSERT_FROM_OTHER()
+elif res == 'select':
     SELECT()
+elif res == 'selectD':
+    SELECT_DISTINCT_byPhoneNumber()
 elif res == 'deletebyName':
     DELETE_By_NAME()
 elif res == 'deletebyNumber':
     DELETE_By_NUMBER()
+elif res == 'deletebyNationallity':
+    DELETE_By_NATIONALITY()
+elif res == 'deletebyAge':
+    DELETE_By_AGE()
+elif res == 'deleteAll':
+    DELETE_ALLINFO()
 elif res == 'newTable':
     MAKE_NEW_TABLE()
 elif res == 'drop':
@@ -154,6 +202,10 @@ elif res == 'createView':
     MAKE_VIEW()
 elif res == 'showView':
     SHOW_VIEW()
+elif res == 'createIndex':
+    CREATE_INDEX()
+elif res == 'showbyIndex':
+    SELECT_byINDEX()
 elif res == 'inJoin':
     INNER_JOIN()
 elif res == 'leftJoin':
